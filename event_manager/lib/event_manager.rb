@@ -1,4 +1,5 @@
 puts 'Event Manager initialized'
+require 'csv'
 
 #contents = File.read('event_attendees.csv')
 #puts contents
@@ -13,3 +14,17 @@ puts 'Event Manager initialized'
 # end
 
 ### Iteraion 1
+# require 'csv'
+# contents = CSV.open(
+#   'event_attendees.csv',
+#   headers: true,
+#   header_converters: :symbol
+# )
+
+# contents.each do |row|
+#   name = row[:first_name]
+#   zipcode = row[:zipcode]
+#   puts "#{name} #{zipcode}"
+# end
+
+### Iteration 2
