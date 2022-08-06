@@ -53,9 +53,9 @@ def legislators_by_zipcode(zip)
       roles: ['legislatorUpperBody', 'legislatorLowerBody']
     ).officials # Iteration 4
 
-    # legislators = legislators.officials
-    # legislator_names = legislators.map(&:name)  Iteration 3
-    # legislator_names.join(", ")
+    legislators = legislators.officials
+    legislator_names = legislators.map(&:name)  #Iteration 3
+    legislator_names.join(", ")
   rescue
     'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
   end
@@ -78,9 +78,11 @@ contents = CSV.open(
 )
 
 
-# template_letter = File.read('form_letter.erb')
-# erb_template = ERB.new template_letter
+template_letter = File.read('form_letter.erb')
+erb_template = ERB.new template_letter
+
 hours_array = []
+days_array = []
 
 contents.each do |row|
   id = row[0]
@@ -92,19 +94,21 @@ contents.each do |row|
 
   date = row[:regdate]
 
-  time = Time.strptime(date, "%Y/%d/%m %k:%M")
-
+  time = Time.strptime(date, "%y/%d/%m %k:%M")
   hour = time.hour
-
   hours_array << hour
 
-  # legislators = legislators_by_zipcode(zipcode)
+  date_for_days = Date.strptime(date, "%y/%d/%m %k:%M")
+  weekday = date_for_days.wday
+  days_array << weekday
 
-  #form_letter = erb_template.result(binding)
+  legislators = legislators_by_zipcode(zipcode)
 
-  #save_thank_you_letter(id, form_letter)
+  form_letter = erb_template.result(binding)
 
-  puts "#{name} #{zipcode} #{number} #{date} #{time} #{hour}" #{legislators}"
+  save_thank_you_letter(id, form_letter)
+
+  puts "#{name} #{zipcode} #{number} #{date} #{time} #{hour} #{weekday} #{legislators}"
 end
 
 
@@ -123,3 +127,19 @@ def find_peakhour(array)
 end
 
 p find_peakhour(hours_array)
+
+def find_peakday(array)
+  peak_days = Hash.new()
+
+  array.each do |day|
+    if peak_days[day].nil?
+      peak_days[day] = 1
+    else
+      peak_days[day] += 1
+    end
+  end
+  puts "0 is Sunday"
+  peak_days.sort.to_h
+end
+
+p find_peakday(days_array)
