@@ -2,6 +2,8 @@ puts 'Event Manager initialized'
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'date'
+require 'time'
 
 #contents = File.read('event_attendees.csv')
 #puts contents
@@ -31,6 +33,13 @@ require 'erb'
 ### Iteration 2 and 3 and 4
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
+end
+
+def clean_number(number)
+  number = number.gsub(/[^0-9]/, "")
+  return 'Bad number' if number.length < 10 || number.length > 11 || number.length == 11 && number.chr != '1'
+  return number if number.length == 10
+  return number.slice(1..10) if number.length == 11 && number.chr == '1'
 end
 
 def legislators_by_zipcode(zip)
@@ -69,8 +78,9 @@ contents = CSV.open(
 )
 
 
-template_letter = File.read('form_letter.erb')
-erb_template = ERB.new template_letter
+# template_letter = File.read('form_letter.erb')
+# erb_template = ERB.new template_letter
+hours_array = []
 
 contents.each do |row|
   id = row[0]
@@ -78,13 +88,38 @@ contents.each do |row|
 
   zipcode = clean_zipcode(row[:zipcode])
 
-  legislators = legislators_by_zipcode(zipcode)
+  number = clean_number(row[:homephone])
 
-  form_letter = erb_template.result(binding)
+  date = row[:regdate]
 
-  save_thank_you_letter(id, form_letter)
+  time = Time.strptime(date, "%Y/%d/%m %k:%M")
 
-  #puts "#{name} #{zipcode} #{legislators}"
+  hour = time.hour
+
+  hours_array << hour
+
+  # legislators = legislators_by_zipcode(zipcode)
+
+  #form_letter = erb_template.result(binding)
+
+  #save_thank_you_letter(id, form_letter)
+
+  puts "#{name} #{zipcode} #{number} #{date} #{time} #{hour}" #{legislators}"
 end
 
 
+
+def find_peakhour(array)
+  peak_hours = Hash.new()
+
+  array.each do |hour|
+    if peak_hours[hour].nil?
+      peak_hours[hour] = 0
+    else
+      peak_hours[hour] += 1
+    end
+  end
+  peak_hours
+end
+
+p find_peakhour(hours_array)
