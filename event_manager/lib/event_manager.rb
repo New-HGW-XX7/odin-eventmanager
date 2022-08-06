@@ -114,12 +114,12 @@ def find_peakhour(array)
 
   array.each do |hour|
     if peak_hours[hour].nil?
-      peak_hours[hour] = 0
+      peak_hours[hour] = 1
     else
       peak_hours[hour] += 1
     end
   end
-  peak_hours
+  peak_hours.sort.to_h
 end
 
 p find_peakhour(hours_array)
